@@ -196,7 +196,7 @@
 
                 <hr class="border-gray-200 dark:border-darkborder">
 
-                <!-- 3. AI Toolbox: Menu Pose Karakter (Vertical Left Sidebar Menu) -->
+                <!-- 3. AI Toolbox: Menu Pose Karakter -->
                 <div class="space-y-2">
                     <label class="text-sm font-bold flex items-center space-x-2">
                         <i class="fa-solid fa-toolbox text-blue-500"></i>
@@ -317,7 +317,7 @@
                                 <i class="fa-solid fa-wand-magic-sparkles text-white text-lg"></i>
                             </div>
                             <h4 class="font-bold text-white text-sm sm:text-base tracking-wide" id="loadingText">Meracik Karya Profesional...</h4>
-                            <p class="text-[11px] text-gray-300 mt-1">Gemini AI sedang memindai piksel & estetika</p>
+                            <p class="text-[11px] text-gray-300 mt-1">Gemini 3.1 Pro sedang memindai piksel & estetika</p>
                         </div>
                     </div>
                 </div>
@@ -430,6 +430,7 @@
             selectedPose = poseValue;
             document.getElementById('selectedPoseLabel').innerText = poseLabel;
             
+            // Highlight selected item in list
             const buttons = document.querySelectorAll('#poseDropdownList button');
             buttons.forEach(btn => {
                 btn.className = "w-full text-left px-3.5 py-2.5 text-xs font-medium hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 transition flex items-center justify-between";
@@ -540,16 +541,8 @@
             }
         }
 
-        // Generate Image using Gemini API
+        // Generate Image using Gemini 3.1 Flash Image API
         async function generateImage() {
-            // MASUKKAN API KEY ANDA DI BAWAH INI ANTARA TANDA KUTIP:
-            const apiKey = "AQ.Ab8RN6JEwvo32H0fOQQEzef_5u3Kc5_ttXZTJeFRwlwub6iMMQ"; 
-
-            if (!apiKey || apiKey === "MASUKKAN_API_KEY_ANDA_DI_SINI") {
-                alert("Harap masukkan API Key Google Gemini Anda terlebih dahulu di dalam kode (baris const apiKey)!");
-                return;
-            }
-
             const promptText = document.getElementById('promptInput').value.trim();
             const activeImages = uploadedImages.filter(img => img !== null);
 
@@ -572,7 +565,7 @@
             try {
                 let parts = [{ text: finalPrompt }];
 
-                activeImages.forEach((imgData) => {
+                activeImages.forEach((imgData, index) => {
                     const base64Data = imgData.split(',')[1];
                     const mimeType = imgData.split(';')[0].split(':')[1];
                     parts.push({
@@ -595,7 +588,8 @@
                     }
                 };
 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent?key=${apiKey}`;
+                const apiKey = "AQ.Ab8RN6JEwvo32H0fOQQEzef_5u3Kc5_ttXZTJeFRwlwub6iMMQ";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image:generateContent?key=${apiKey}`;
 
                 let response = null;
                 let retries = 3;
@@ -617,8 +611,7 @@
                 }
 
                 if (!response || !response.ok) {
-                    const errData = await response.json().catch(() => ({}));
-                    throw new Error(errData?.error?.message || "Gagal terhubung ke server AI Gemini. Periksa kembali API Key Anda.");
+                    throw new Error("Gagal terhubung ke server AI Gemini.");
                 }
 
                 const result = await response.json();
